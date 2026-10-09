@@ -1,42 +1,19 @@
+from decimal import Decimal
 from django.db import models
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
-from decimal import Decimal
+
+from .warehouse import Warehouse
 
 
-class Warehouse(models.Model):
-    name = models.CharField(max_length=150, verbose_name="Tên kho")
-    code = models.CharField(max_length=50, unique=True, verbose_name="Mã kho")
-    location = models.CharField(max_length=255, verbose_name="Địa chỉ kho")
-    capacity = models.PositiveIntegerField(
-        default=1000,
-        validators=[MinValueValidator(1)],
-        verbose_name="Sức chứa tối đa (sản phẩm)"
-    )
-    is_active = models.BooleanField(default=True, verbose_name="Đang hoạt động")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = "Kho bãi"
-        verbose_name_plural = "Danh sách kho bãi"
-
-    def __str__(self):
-        return f"{self.name} ({self.code})"
-
-    @property
-    def current_total_quantity(self):
-        # Calculate current total quantity across all products stored in this warehouse
-        total = self.products.aggregate(total=models.Sum('quantity'))['total']
-        return total or 0
+class StockStatus(models.TextChoices):
+    IN_STOCK = 'IN_STOCK', 'Còn hàng'
+    LOW_STOCK = 'LOW_STOCK', 'Sắp hết hàng'
+    OUT_OF_STOCK = 'OUT_OF_STOCK', 'Hết hàng'
 
 
 class Product(models.Model):
-    class StockStatus(models.TextChoices):
-        IN_STOCK = 'IN_STOCK', 'Còn hàng'
-        LOW_STOCK = 'LOW_STOCK', 'Sắp hết hàng'
-        OUT_OF_STOCK = 'OUT_OF_STOCK', 'Hết hàng'
+    StockStatus = StockStatus
 
     warehouse = models.ForeignKey(
         Warehouse,
