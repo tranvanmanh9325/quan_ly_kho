@@ -19,6 +19,15 @@ db.sqlite3-journal
 media/
 staticfiles/
 
+# Database dumps and backups (security-and-secrets.md requires these ignored)
+*.dump
+*.sql
+
+# AI agent workspace and throwaway live smoke-test artifacts (contain credentials)
+.agents/
+run_live_smoke_test.py
+live_smoke_test_output.json
+
 # IDE & OS
 .vscode/
 .idea/
