@@ -1,0 +1,356 @@
+{
+  "info": {
+    "name": "Quản Lý Kho Bãi API (Django + PostgreSQL)",
+    "description": "Bộ sưu tập Postman đầy đủ cho hệ thống Backend Quản lý kho bãi. Hỗ trợ CRUD Kho, CRUD Sản phẩm, Nhập/Xuất kho và Authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "28274206d1225da05d77e02a8d2ee0b1c124086f",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Đăng nhập (Lấy Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"AdminPassword123@\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login", ""]
+            }
+          }
+        },
+        {
+          "name": "Đăng ký tài khoản nhân viên",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nhanvien01\",\n  \"email\": \"nhanvien@kho.local\",\n  \"password\": \"MatKhauNhanVien123@\",\n  \"first_name\": \"Mạnh\",\n  \"last_name\": \"Trần\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/register/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "register", ""]
+            }
+          }
+        },
+        {
+          "name": "Xem thông tin cá nhân (Cần Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/me/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "me", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Warehouses (Kho bãi)",
+      "item": [
+        {
+          "name": "1. Danh sách kho (GET - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", ""]
+            }
+          }
+        },
+        {
+          "name": "2. Chi tiết kho (GET - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "3. Lấy sản phẩm trong kho (GET - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/1/products/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", "1", "products", ""]
+            }
+          }
+        },
+        {
+          "name": "4. Tạo kho mới (POST - 201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kho Miền Trung - Đà Nẵng\",\n  \"code\": \"KHO-DN-01\",\n  \"location\": \"Khu Công Nghiệp Hòa Khánh, Liên Chiểu, Đà Nẵng\",\n  \"capacity\": 6000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", ""]
+            }
+          }
+        },
+        {
+          "name": "5. Cập nhật kho (PUT - 200 OK)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kho Tổng Hà Nội (Mở rộng)\",\n  \"code\": \"KHO-HN-01\",\n  \"location\": \"Số 12 KCN Thăng Long, Đông Anh, Hà Nội\",\n  \"capacity\": 7000,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", "1", ""]
+            }
+          }
+        },
+        {
+          "name": "6. Xóa kho (DELETE - 204 No Content)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/3/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", "3", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Products (Hàng hóa & Tồn kho)",
+      "item": [
+        {
+          "name": "1. Danh sách sản phẩm (GET - 200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ""]
+            }
+          }
+        },
+        {
+          "name": "2. Lọc sản phẩm sắp hết hàng (status=LOW_STOCK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/?status=LOW_STOCK",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ""],
+              "query": [{ "key": "status", "value": "LOW_STOCK" }]
+            }
+          }
+        },
+        {
+          "name": "3. Tìm kiếm sản phẩm theo tên / SKU",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/?search=Dell",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ""],
+              "query": [{ "key": "search", "value": "Dell" }]
+            }
+          }
+        },
+        {
+          "name": "4. Thêm sản phẩm mới (POST - 201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouse\": 1,\n  \"sku\": \"SKU-MACBOOK-M3\",\n  \"name\": \"Apple MacBook Air M3 15 inch\",\n  \"category\": \"Máy tính & Laptop\",\n  \"quantity\": 30,\n  \"price\": \"31990000.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ""]
+            }
+          }
+        },
+        {
+          "name": "5. Nhập thêm hàng (POST adjust-stock - 200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"IMPORT\",\n  \"quantity\": 15,\n  \"note\": \"Nhập lô hàng bổ sung đợt 1\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/1/adjust-stock/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", "1", "adjust-stock", ""]
+            }
+          }
+        },
+        {
+          "name": "6. Xuất hàng (POST adjust-stock - 200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"EXPORT\",\n  \"quantity\": 10,\n  \"note\": \"Xuất kho giao cho chi nhánh\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/1/adjust-stock/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", "1", "adjust-stock", ""]
+            }
+          }
+        },
+        {
+          "name": "7. Xóa sản phẩm (DELETE - 204 No Content)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/3/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", "3", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Error Cases (Kiểm tra HTTP Status Codes)",
+      "item": [
+        {
+          "name": "Test 400 Bad Request: Số lượng âm",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"warehouse\": 1,\n  \"sku\": \"SKU-LOI-SO-LUONG\",\n  \"name\": \"Sản phẩm lỗi\",\n  \"category\": \"Lỗi\",\n  \"quantity\": -10,\n  \"price\": \"50000.00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", ""]
+            }
+          }
+        },
+        {
+          "name": "Test 400 Bad Request: Xuất kho vượt tồn kho",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"EXPORT\",\n  \"quantity\": 99999\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/products/1/adjust-stock/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "products", "1", "adjust-stock", ""]
+            }
+          }
+        },
+        {
+          "name": "Test 404 Not Found: Tìm kho không tồn tại",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/999999/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", "999999", ""]
+            }
+          }
+        },
+        {
+          "name": "Test 401 Unauthorized: Không có Token khi tạo kho",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kho Không Phép\",\n  \"code\": \"KHO-NO-AUTH\",\n  \"location\": \"Hà Nội\",\n  \"capacity\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/warehouses/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "warehouses", ""]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
