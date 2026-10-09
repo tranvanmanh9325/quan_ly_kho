@@ -2,18 +2,37 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables from .env file
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-development-key')
+
+def get_required_env(var_name: str) -> str:
+    """
+    Retrieve mandatory environment variable or raise ImproperlyConfigured.
+    Prevents application from starting in an insecure, unconfigured state.
+    """
+    val = os.getenv(var_name)
+    if not val or not val.strip():
+        raise ImproperlyConfigured(
+            f"Mandatory environment variable '{var_name}' is not set or empty. "
+            f"Please define it in your .env configuration file."
+        )
+    return val.strip()
+
+
+SECRET_KEY = get_required_env('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
+# Secure host header validation: read from env, avoid wildcards even in debug mode
 allowed_hosts_raw = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost')
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_raw.split(',') if h.strip()]
-if DEBUG and '*' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.extend(['*', 'testserver'])
+# Ensure Django test client host 'testserver' is recognized without wildcard
+if 'testserver' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('testserver')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -67,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('DB_NAME', 'quan_ly_kho_db'),
         'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', '090325'),
+        'PASSWORD': get_required_env('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
@@ -110,5 +129,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# CORS settings for frontend integration
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS settings: default to disallowing all origins unless explicitly configured
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() in ('true', '1', 'yes')
+cors_origins_raw = os.getenv('CORS_ALLOWED_ORIGINS', '')
+CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_origins_raw.split(',') if o.strip()]

@@ -1,3 +1,5 @@
+import os
+import secrets
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -11,6 +13,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Seeding sample data...")
 
+        # Determine admin password: read from environment or generate a secure one-time secret
+        env_admin_pwd = os.getenv("SEED_ADMIN_PASSWORD")
+        if env_admin_pwd and env_admin_pwd.strip():
+            admin_password = env_admin_pwd.strip()
+            is_generated = False
+        else:
+            admin_password = secrets.token_urlsafe(16)
+            is_generated = True
+
         # Create or update demo staff user
         user, created = User.objects.get_or_create(
             username="admin",
@@ -20,11 +31,25 @@ class Command(BaseCommand):
                 "is_superuser": True
             }
         )
-        user.set_password("AdminPassword123@")
+        user.set_password(admin_password)
         user.save()
-        token, _ = Token.objects.get_or_create(user=user)
+        Token.objects.get_or_create(user=user)
 
-        self.stdout.write(self.style.SUCCESS(f"User: admin / AdminPassword123@ (Token: {token.key})"))
+        if is_generated:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Admin user 'admin' configured with one-time generated password: {admin_password}\n"
+                    f"(Please record this password securely; it will not be displayed again)."
+                )
+            )
+        else:
+            self.stdout.write(
+                self.style.SUCCESS("Admin user 'admin' configured with password from SEED_ADMIN_PASSWORD.")
+            )
+
+        self.stdout.write(
+            "Authentication token provisioned. Retrieve token by sending POST to /api/v1/auth/login/"
+        )
 
         # Create Warehouses
         kho_hn, _ = Warehouse.objects.get_or_create(
